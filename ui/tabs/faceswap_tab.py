@@ -138,6 +138,11 @@ def faceswap_tab():
             with gr.Column():
                 resultimage = gr.Image(type='filepath', label='Final Image', interactive=False )
                 resultvideo = gr.Video(label='Final Video', interactive=False, visible=False)
+        with gr.Row(variant='panel'):
+            with gr.Column():
+                clean_list_files_process_btn = gr.Button("clean_list_files_process", variant='secondary', interactive=False)
+                selected_face_index_number = gr.Number(show_label=False, interactive=True)
+                set_selected_face_index_btn = gr.Button("set_selected_face_index", variant='secondary', interactive=False)
 
     previewinputs = [preview_frame_num, bt_destfiles, fake_preview, ui.globals.ui_selected_enhancer, selected_face_detection,
                         max_face_distance, ui.globals.ui_blend_ratio, selected_mask_engine, clip_text, no_face_action, vr_mode, autorotate, maskimage, chk_showmaskoffsets, num_swap_steps]
@@ -190,7 +195,8 @@ def faceswap_tab():
     set_frame_start.click(fn=on_set_frame, inputs=[set_frame_start, preview_frame_num], outputs=[text_frame_clip])
     set_frame_end.click(fn=on_set_frame, inputs=[set_frame_end, preview_frame_num], outputs=[text_frame_clip])
 
-                     
+    clean_list_files_process_btn.click(clean_list_files_process, None, None)
+    set_selected_face_index_btn.click(set_selected_face_index, inputs=[selected_face_index_number], outputs=None)
             
 def on_mask_top_changed(mask_offset):
     set_mask_offset(0, mask_offset)
@@ -715,3 +721,11 @@ def display_output(filename):
         else:
             current_frame = get_image_frame(filename)
         return gr.Image(visible=True, value=util.convert_to_gradio(current_frame)), gr.Video(visible=False)
+    
+def clean_list_files_process():
+    global list_files_process
+    list_files_process = []
+
+def set_selected_face_index(index):
+    global SELECTED_FACE_INDEX
+    SELECTED_FACE_INDEX = index
