@@ -42,14 +42,14 @@ def handle():
 
     for index, dictionary in enumerate(list_element):
         image_path = dictionary.get("image")
-        print("Image path:", image_path)
+        print("Image pick path:", image_path)
         # 设置人脸选中
         client.predict(index=index, api_name="/set_selected_face_index")
         client.predict(api_name="/on_selected_face")
 
     # 开始处理
     result = client.predict(
-        enhancer="Codeformer",  # Codeformer None
+        enhancer="None",  # Codeformer None
         detection="Selected face",
         keep_frames=False,
         wait_after_extraction=False,
@@ -81,7 +81,8 @@ def handle():
         api_name="/on_clear_destfiles",
     )
 
-    return "success"
+    result_image_path = result.get("value")
+    return result_image_path[0]
 
 
 if __name__ == "__main__":
