@@ -49,7 +49,7 @@ def handle():
 
     # 开始处理
     result = client.predict(
-        enhancer="None",  # Codeformer None
+        enhancer="Codeformer",  # Codeformer None
         detection="Selected face",
         keep_frames=False,
         wait_after_extraction=False,
