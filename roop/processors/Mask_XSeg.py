@@ -11,14 +11,20 @@ THREAD_LOCK_CLIP = threading.Lock()
 
 
 class Mask_XSeg():
+    plugin_options:dict = None
 
     model_xseg = None
 
-    processorname = 'xseg'
+    processorname = 'mask_xseg'
     type = 'mask'
 
 
-    def Initialize(self, devicename):
+    def Initialize(self, plugin_options:dict):
+        if self.plugin_options is not None:
+            if self.plugin_options["devicename"] != plugin_options["devicename"]:
+                self.Release()
+
+        self.plugin_options = plugin_options
         if self.model_xseg is None:
             model_path = resolve_relative_path('../models/xseg.onnx')
             onnxruntime.set_default_logger_severity(3)
@@ -27,8 +33,7 @@ class Mask_XSeg():
             self.model_outputs = self.model_xseg.get_outputs()
 
             # replace Mac mps with cpu for the moment
-            devicename = devicename.replace('mps', 'cpu')
-            self.devicename = devicename
+            self.devicename = self.plugin_options["devicename"].replace('mps', 'cpu')
 
 
     def Run(self, img1, keywords:str) -> Frame:
@@ -49,6 +54,7 @@ class Mask_XSeg():
 
 
     def Release(self):
+        del self.model_xseg
         self.model_xseg = None
 
 

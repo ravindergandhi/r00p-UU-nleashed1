@@ -3,7 +3,7 @@ import roop.globals
 import ui.globals
 import pyvirtualcam
 import threading
-import time
+import platform
 
 
 cam_active = False
@@ -13,13 +13,12 @@ vcam = None
 def virtualcamera(streamobs, cam_num,width,height):
     from roop.ProcessOptions import ProcessOptions
     from roop.core import live_swap, get_processing_plugins
-    from roop.filters import fast_quantize_to_palette
 
     global cam_active
 
     #time.sleep(2)
     print('Starting capture')
-    cap = cv2.VideoCapture(cam_num, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(cam_num, cv2.CAP_DSHOW if platform.system() != 'Darwin' else cv2.CAP_AVFOUNDATION)
     if not cap.isOpened():
         print("Cannot open camera")
         cap.release()
@@ -46,16 +45,16 @@ def virtualcamera(streamobs, cam_num,width,height):
     else:
         print(f'Not streaming to virtual camera!')
 
+    # always use xseg masking
+    options = ProcessOptions(get_processing_plugins("mask_xseg"), roop.globals.distance_threshold, roop.globals.blend_ratio,
+                              "all", 0, None, None, 1, False)
     while cam_active:
         ret, frame = cap.read()
         if not ret:
             break
 
         if len(roop.globals.INPUT_FACESETS) > 0:
-            options = ProcessOptions(get_processing_plugins(None), roop.globals.distance_threshold, roop.globals.blend_ratio,
-                              "all", 0, None, None, 1, False)
             frame = live_swap(frame, options)
-        #frame = fast_quantize_to_palette(frame)
         if cam:
             cam.send(frame)
             cam.sleep_until_next_frame()
